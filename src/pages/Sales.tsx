@@ -260,7 +260,3 @@ export default function Sales() {
     </div>
   );
 }
-
-function Trash2Icon(props: any) {
-  return <Trash2 {...props} />;
-}
