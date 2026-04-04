@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Search, Eye, Printer, Download, FileText } from "lucide-react";
+import { Plus, Search, Eye, Printer, Download, FileText, Trash2 } from "lucide-react";
 import { invoices as initialInvoices, products, formatCurrency, Invoice, InvoiceItem } from "@/data/mockData";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
