@@ -1,0 +1,145 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { useBusiness } from "@/contexts/BusinessContext";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Store, Phone, Mail, MapPin, ArrowRight, Check } from "lucide-react";
+import { toast } from "sonner";
+
+const businessTypes = [
+  { value: "quincaillerie", label: "🔧 Quincaillerie", desc: "Matériaux de construction, outils" },
+  { value: "boutique", label: "🛍️ Boutique", desc: "Vêtements, accessoires, mode" },
+  { value: "alimentation", label: "🥫 Alimentation", desc: "Épicerie, supermarché, alimentaire" },
+  { value: "electronique", label: "📱 Électronique", desc: "Téléphones, informatique, gadgets" },
+  { value: "pharmacie", label: "💊 Pharmacie", desc: "Médicaments, produits de santé" },
+  { value: "cosmétique", label: "💄 Cosmétique", desc: "Beauté, soins, parfumerie" },
+  { value: "restaurant", label: "🍽️ Restaurant", desc: "Restauration, café, traiteur" },
+  { value: "general", label: "🏪 Commerce général", desc: "Autre type de commerce" },
+];
+
+export default function Onboarding() {
+  const { user } = useAuth();
+  const { refetch } = useBusiness();
+  const navigate = useNavigate();
+  const [step, setStep] = useState(1);
+  const [selectedType, setSelectedType] = useState("");
+  const [form, setForm] = useState({ phone: "", email: "", address: "", currency: "FCFA", taxRate: "18" });
+  const [loading, setLoading] = useState(false);
+
+  const handleComplete = async () => {
+    if (!user) return;
+    setLoading(true);
+    const { error } = await supabase
+      .from("business_profiles")
+      .update({
+        business_type: selectedType,
+        phone: form.phone || null,
+        email: form.email || null,
+        address: form.address || null,
+        currency: form.currency,
+        tax_rate: parseFloat(form.taxRate) || 18,
+      })
+      .eq("owner_id", user.id);
+    
+    if (error) { toast.error("Erreur lors de la configuration"); setLoading(false); return; }
+    await refetch();
+    toast.success("Configuration terminée !");
+    navigate("/");
+    setLoading(false);
+  };
+
+  return (
+    <div className="min-h-screen bg-background flex items-center justify-center p-6">
+      <div className="w-full max-w-2xl">
+        {/* Progress */}
+        <div className="flex items-center justify-center gap-3 mb-8">
+          {[1, 2].map(s => (
+            <div key={s} className="flex items-center gap-2">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                step >= s ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+              }`}>
+                {step > s ? <Check className="w-4 h-4" /> : s}
+              </div>
+              {s < 2 && <div className={`w-16 h-0.5 ${step > 1 ? "bg-primary" : "bg-muted"}`} />}
+            </div>
+          ))}
+        </div>
+
+        {step === 1 && (
+          <div className="space-y-6 animate-fade-in">
+            <div className="text-center">
+              <h1 className="text-2xl font-bold">Quel est votre domaine d'activité ?</h1>
+              <p className="text-muted-foreground mt-2">L'interface s'adaptera automatiquement à votre secteur</p>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {businessTypes.map(t => (
+                <button
+                  key={t.value}
+                  onClick={() => setSelectedType(t.value)}
+                  className={`p-4 rounded-xl border-2 transition-all text-left hover:shadow-md ${
+                    selectedType === t.value
+                      ? "border-primary bg-primary/5 shadow-md"
+                      : "border-border hover:border-primary/40"
+                  }`}
+                >
+                  <span className="text-2xl block mb-2">{t.label.split(" ")[0]}</span>
+                  <p className="text-sm font-medium">{t.label.split(" ").slice(1).join(" ")}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{t.desc}</p>
+                </button>
+              ))}
+            </div>
+            <div className="flex justify-end">
+              <Button onClick={() => setStep(2)} disabled={!selectedType} className="gap-2" size="lg">
+                Continuer <ArrowRight className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {step === 2 && (
+          <div className="space-y-6 animate-fade-in">
+            <div className="text-center">
+              <h1 className="text-2xl font-bold">Informations de votre entreprise</h1>
+              <p className="text-muted-foreground mt-2">Ces informations apparaîtront sur vos factures</p>
+            </div>
+            <div className="stat-card space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="flex items-center gap-2"><Phone className="w-3.5 h-3.5" /> Téléphone</Label>
+                  <Input value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} placeholder="+221 77 000 00 00" />
+                </div>
+                <div>
+                  <Label className="flex items-center gap-2"><Mail className="w-3.5 h-3.5" /> Email</Label>
+                  <Input value={form.email} onChange={e => setForm({...form, email: e.target.value})} placeholder="contact@entreprise.com" />
+                </div>
+              </div>
+              <div>
+                <Label className="flex items-center gap-2"><MapPin className="w-3.5 h-3.5" /> Adresse</Label>
+                <Input value={form.address} onChange={e => setForm({...form, address: e.target.value})} placeholder="Dakar, Sénégal" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Devise</Label>
+                  <Input value={form.currency} onChange={e => setForm({...form, currency: e.target.value})} />
+                </div>
+                <div>
+                  <Label>Taux de TVA (%)</Label>
+                  <Input type="number" value={form.taxRate} onChange={e => setForm({...form, taxRate: e.target.value})} />
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-between">
+              <Button variant="outline" onClick={() => setStep(1)}>Retour</Button>
+              <Button onClick={handleComplete} disabled={loading} className="gap-2" size="lg">
+                {loading ? "Configuration..." : "Terminer"} {!loading && <Check className="w-4 h-4" />}
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
