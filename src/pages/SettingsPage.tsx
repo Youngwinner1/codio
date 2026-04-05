@@ -1,23 +1,55 @@
-import { useState } from "react";
-import { Store, Save } from "lucide-react";
+import { Store, Save, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useBusiness } from "@/contexts/BusinessContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useState, useEffect } from "react";
 
 export default function SettingsPage() {
+  const { business, refetch } = useBusiness();
+  const { signOut } = useAuth();
+  const [saving, setSaving] = useState(false);
   const [settings, setSettings] = useState({
-    companyName: 'QUINCAILLERIE BAYE SAM',
-    phone: '+221 77 000 00 00',
-    email: 'contact@bayesamgestion.sn',
-    address: 'Dakar, Sénégal',
-    taxRate: '18',
-    currency: 'FCFA',
+    name: "", phone: "", email: "", address: "", tax_rate: "18", currency: "FCFA",
   });
 
-  const handleSave = () => {
+  useEffect(() => {
+    if (business) {
+      setSettings({
+        name: business.name,
+        phone: business.phone || "",
+        email: business.email || "",
+        address: business.address || "",
+        tax_rate: String(business.tax_rate),
+        currency: business.currency,
+      });
+    }
+  }, [business]);
+
+  const handleSave = async () => {
+    if (!business) return;
+    setSaving(true);
+    const { error } = await supabase
+      .from("business_profiles")
+      .update({
+        name: settings.name,
+        phone: settings.phone || null,
+        email: settings.email || null,
+        address: settings.address || null,
+        tax_rate: parseFloat(settings.tax_rate) || 18,
+        currency: settings.currency,
+      })
+      .eq("id", business.id);
+    setSaving(false);
+    if (error) { toast.error("Erreur lors de la sauvegarde"); return; }
+    await refetch();
     toast.success("Paramètres enregistrés avec succès");
   };
+
+  if (!business) return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
 
   return (
     <div className="space-y-6 max-w-2xl">
@@ -38,19 +70,27 @@ export default function SettingsPage() {
         </div>
 
         <div className="grid gap-4">
-          <div><Label>Nom de l'entreprise</Label><Input value={settings.companyName} onChange={e => setSettings({...settings, companyName: e.target.value})} /></div>
+          <div><Label>Nom de l'entreprise</Label><Input value={settings.name} onChange={e => setSettings({...settings, name: e.target.value})} /></div>
           <div className="grid grid-cols-2 gap-4">
             <div><Label>Téléphone</Label><Input value={settings.phone} onChange={e => setSettings({...settings, phone: e.target.value})} /></div>
             <div><Label>Email</Label><Input value={settings.email} onChange={e => setSettings({...settings, email: e.target.value})} /></div>
           </div>
           <div><Label>Adresse</Label><Input value={settings.address} onChange={e => setSettings({...settings, address: e.target.value})} /></div>
           <div className="grid grid-cols-2 gap-4">
-            <div><Label>Taux de TVA (%)</Label><Input type="number" value={settings.taxRate} onChange={e => setSettings({...settings, taxRate: e.target.value})} /></div>
+            <div><Label>Taux de TVA (%)</Label><Input type="number" value={settings.tax_rate} onChange={e => setSettings({...settings, tax_rate: e.target.value})} /></div>
             <div><Label>Devise</Label><Input value={settings.currency} onChange={e => setSettings({...settings, currency: e.target.value})} /></div>
           </div>
         </div>
 
-        <Button onClick={handleSave} className="gap-2"><Save className="w-4 h-4" /> Enregistrer</Button>
+        <div className="flex items-center justify-between pt-2">
+          <Button onClick={handleSave} disabled={saving} className="gap-2">
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            Enregistrer
+          </Button>
+          <Button variant="outline" onClick={signOut} className="text-destructive hover:text-destructive">
+            Se déconnecter
+          </Button>
+        </div>
       </div>
     </div>
   );
