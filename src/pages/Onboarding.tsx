@@ -116,6 +116,19 @@ export default function Onboarding() {
   const [form, setForm] = useState({ phone: "", email: "", address: "", currency: "FCFA", taxRate: "18" });
   const [loading, setLoading] = useState(false);
 
+  const filteredCategories = useMemo(() => {
+    if (!searchType.trim()) return businessCategories;
+    const q = searchType.toLowerCase();
+    return businessCategories
+      .map(cat => ({
+        ...cat,
+        types: cat.types.filter(t => 
+          t.label.toLowerCase().includes(q) || t.desc.toLowerCase().includes(q) || t.value.includes(q)
+        ),
+      }))
+      .filter(cat => cat.types.length > 0);
+  }, [searchType]);
+
   const handleComplete = async () => {
     if (!user) return;
     setLoading(true);
