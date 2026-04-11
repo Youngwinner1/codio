@@ -112,6 +112,7 @@ export default function Onboarding() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [selectedType, setSelectedType] = useState("");
+  const [searchType, setSearchType] = useState("");
   const [form, setForm] = useState({ phone: "", email: "", address: "", currency: "FCFA", taxRate: "18" });
   const [loading, setLoading] = useState(false);
 
