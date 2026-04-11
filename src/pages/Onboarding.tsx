@@ -173,25 +173,46 @@ export default function Onboarding() {
           <div className="space-y-6 animate-fade-in">
             <div className="text-center">
               <h1 className="text-2xl font-bold">Quel est votre domaine d'activité ?</h1>
-              <p className="text-muted-foreground mt-2">L'interface s'adaptera automatiquement à votre secteur</p>
+              <p className="text-muted-foreground mt-2">Choisissez votre secteur — l'interface s'adaptera automatiquement</p>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {businessTypes.map(t => (
-                <button
-                  key={t.value}
-                  onClick={() => setSelectedType(t.value)}
-                  className={`p-4 rounded-xl border-2 transition-all text-left hover:shadow-md ${
-                    selectedType === t.value
-                      ? "border-primary bg-primary/5 shadow-md"
-                      : "border-border hover:border-primary/40"
-                  }`}
-                >
-                  <span className="text-2xl block mb-2">{t.label.split(" ")[0]}</span>
-                  <p className="text-sm font-medium">{t.label.split(" ").slice(1).join(" ")}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{t.desc}</p>
-                </button>
-              ))}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Rechercher un secteur..."
+                value={searchType}
+                onChange={e => setSearchType(e.target.value)}
+                className="pl-9"
+              />
             </div>
+            <ScrollArea className="h-[400px] pr-2">
+              <div className="space-y-4">
+                {filteredCategories.map(cat => (
+                  <div key={cat.category}>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">{cat.category}</p>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                      {cat.types.map(t => (
+                        <button
+                          key={t.value}
+                          onClick={() => setSelectedType(t.value)}
+                          className={`p-3 rounded-xl border-2 transition-all text-left hover:shadow-md ${
+                            selectedType === t.value
+                              ? "border-primary bg-primary/5 shadow-md"
+                              : "border-border hover:border-primary/40"
+                          }`}
+                        >
+                          <span className="text-xl block mb-1">{t.label.split(" ")[0]}</span>
+                          <p className="text-sm font-medium">{t.label.split(" ").slice(1).join(" ")}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">{t.desc}</p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+                {filteredCategories.length === 0 && (
+                  <p className="text-center text-muted-foreground py-8">Aucun secteur trouvé</p>
+                )}
+              </div>
+            </ScrollArea>
             <div className="flex justify-end">
               <Button onClick={() => setStep(2)} disabled={!selectedType} className="gap-2" size="lg">
                 Continuer <ArrowRight className="w-4 h-4" />
