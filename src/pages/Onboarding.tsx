@@ -6,7 +6,8 @@ import { useBusiness } from "@/contexts/BusinessContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Store, Phone, Mail, MapPin, ArrowRight, Check } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Store, Phone, Mail, MapPin, ArrowRight, Check, Search } from "lucide-react";
 import { toast } from "sonner";
 
 const businessCategories = [
