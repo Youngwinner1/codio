@@ -281,3 +281,40 @@ export function useDashboardStats() {
     enabled: !!business,
   });
 }
+
+export function useNotifications() {
+  const { business } = useBusiness();
+  return useQuery({
+    queryKey: ["notifications", business?.id],
+    queryFn: async () => {
+      if (!business) return [];
+      const { data, error } = await supabase
+        .from("notifications")
+        .select("*")
+        .eq("business_id", business.id)
+        .order("created_at", { ascending: false })
+        .limit(50);
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!business,
+  });
+}
+
+export function useUnreadNotificationCount() {
+  const { business } = useBusiness();
+  return useQuery({
+    queryKey: ["notifications_unread", business?.id],
+    queryFn: async () => {
+      if (!business) return 0;
+      const { count, error } = await supabase
+        .from("notifications")
+        .select("*", { count: "exact", head: true })
+        .eq("business_id", business.id)
+        .eq("is_read", false);
+      if (error) throw error;
+      return count || 0;
+    },
+    enabled: !!business,
+  });
+}
