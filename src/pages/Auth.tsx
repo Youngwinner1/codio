@@ -66,7 +66,7 @@ export default function Auth() {
             <Store className="w-7 h-7" />
           </div>
           <div>
-            <h1 className="text-xl font-bold">BayeSam</h1>
+            <h1 className="text-xl font-bold">Codio</h1>
             <p className="text-sm opacity-80">Gestion Pro</p>
           </div>
         </div>
@@ -84,7 +84,7 @@ export default function Auth() {
             ))}
           </div>
         </div>
-        <p className="text-sm opacity-60">© 2025 BayeSam Gestion Pro</p>
+        <p className="text-sm opacity-60">© 2025 Codio</p>
       </div>
 
       {/* Right panel - form */}
@@ -94,7 +94,7 @@ export default function Auth() {
             <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
               <Store className="w-6 h-6 text-primary-foreground" />
             </div>
-            <h1 className="text-xl font-bold">BayeSam Gestion Pro</h1>
+            <h1 className="text-xl font-bold">Codio</h1>
           </div>
 
           <div className="text-center">

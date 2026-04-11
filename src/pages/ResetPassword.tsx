@@ -36,7 +36,7 @@ export default function ResetPassword() {
           <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
             <Store className="w-6 h-6 text-primary-foreground" />
           </div>
-          <h1 className="text-xl font-bold">BayeSam Gestion Pro</h1>
+          <h1 className="text-xl font-bold">Codio</h1>
         </div>
         <div className="text-center">
           <h2 className="text-2xl font-bold">Nouveau mot de passe</h2>
