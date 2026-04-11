@@ -62,9 +62,7 @@ export default function Auth() {
       {/* Left panel - branding */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary to-primary/80 p-12 flex-col justify-between text-primary-foreground">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-primary-foreground/20 flex items-center justify-center">
-            <Store className="w-7 h-7" />
-          </div>
+          <img src="/logo-codio.png" alt="Codio" className="w-12 h-12 rounded-xl" />
           <div>
             <h1 className="text-xl font-bold">Codio</h1>
             <p className="text-sm opacity-80">Gestion Pro</p>
@@ -91,9 +89,7 @@ export default function Auth() {
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="w-full max-w-md space-y-8">
           <div className="lg:hidden flex items-center gap-3 justify-center mb-8">
-            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-              <Store className="w-6 h-6 text-primary-foreground" />
-            </div>
+            <img src="/logo-codio.png" alt="Codio" className="w-10 h-10 rounded-xl" />
             <h1 className="text-xl font-bold">Codio</h1>
           </div>
 
