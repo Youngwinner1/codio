@@ -9,15 +9,101 @@ import { Label } from "@/components/ui/label";
 import { Store, Phone, Mail, MapPin, ArrowRight, Check } from "lucide-react";
 import { toast } from "sonner";
 
-const businessTypes = [
-  { value: "quincaillerie", label: "🔧 Quincaillerie", desc: "Matériaux de construction, outils" },
-  { value: "boutique", label: "🛍️ Boutique", desc: "Vêtements, accessoires, mode" },
-  { value: "alimentation", label: "🥫 Alimentation", desc: "Épicerie, supermarché, alimentaire" },
-  { value: "electronique", label: "📱 Électronique", desc: "Téléphones, informatique, gadgets" },
-  { value: "pharmacie", label: "💊 Pharmacie", desc: "Médicaments, produits de santé" },
-  { value: "cosmétique", label: "💄 Cosmétique", desc: "Beauté, soins, parfumerie" },
-  { value: "restaurant", label: "🍽️ Restaurant", desc: "Restauration, café, traiteur" },
-  { value: "general", label: "🏪 Commerce général", desc: "Autre type de commerce" },
+const businessCategories = [
+  {
+    category: "🛒 Commerce de détail",
+    types: [
+      { value: "boutique", label: "🛍️ Boutique", desc: "Vêtements, accessoires, mode" },
+      { value: "quincaillerie", label: "🔧 Quincaillerie", desc: "Matériaux, outils, bricolage" },
+      { value: "supermarche", label: "🛒 Supermarché", desc: "Supérette, épicerie, alimentaire" },
+      { value: "pharmacie", label: "💊 Pharmacie", desc: "Médicaments, produits de santé" },
+      { value: "librairie", label: "📚 Librairie", desc: "Livres, papeterie, fournitures" },
+      { value: "electronique", label: "📱 Électronique", desc: "Téléphones, informatique, gadgets" },
+      { value: "cosmetique", label: "💄 Cosmétique", desc: "Beauté, parfumerie, soins" },
+      { value: "boulangerie", label: "🥖 Boulangerie", desc: "Pâtisserie, matières premières" },
+    ],
+  },
+  {
+    category: "🏢 Grossiste & Distribution",
+    types: [
+      { value: "grossiste", label: "📦 Grossiste", desc: "Vente en gros, import/export" },
+      { value: "distributeur", label: "🚛 Distributeur", desc: "Centrale d'achat, distribution" },
+    ],
+  },
+  {
+    category: "🏭 Industrie & Production",
+    types: [
+      { value: "usine", label: "🏭 Usine", desc: "Fabrication alimentaire, textile" },
+      { value: "atelier", label: "🔨 Atelier", desc: "Menuiserie, métallurgie, imprimerie" },
+    ],
+  },
+  {
+    category: "🍽️ Restauration & Hôtellerie",
+    types: [
+      { value: "restaurant", label: "🍽️ Restaurant", desc: "Restaurant, fast-food, traiteur" },
+      { value: "hotel", label: "🏨 Hôtel", desc: "Hébergement, consommables" },
+    ],
+  },
+  {
+    category: "🏥 Santé",
+    types: [
+      { value: "clinique", label: "🏥 Clinique", desc: "Hôpital, laboratoire, santé" },
+    ],
+  },
+  {
+    category: "🚗 Auto & Mécanique",
+    types: [
+      { value: "garage", label: "🚗 Garage", desc: "Pièces détachées, mécanique" },
+    ],
+  },
+  {
+    category: "🧱 BTP & Construction",
+    types: [
+      { value: "btp", label: "🧱 BTP", desc: "Construction, dépôt matériaux" },
+    ],
+  },
+  {
+    category: "🌾 Agriculture",
+    types: [
+      { value: "agriculture", label: "🌾 Agriculture", desc: "Semences, engrais, récoltes" },
+    ],
+  },
+  {
+    category: "⛽ Énergie",
+    types: [
+      { value: "energie", label: "⛽ Énergie", desc: "Station-service, dépôt de gaz" },
+    ],
+  },
+  {
+    category: "🧑‍🔧 Services",
+    types: [
+      { value: "services", label: "🧑‍🔧 Services", desc: "Maintenance, plomberie, électricité" },
+    ],
+  },
+  {
+    category: "🏫 Éducation & Institutions",
+    types: [
+      { value: "education", label: "🏫 Éducation", desc: "École, ONG, administration" },
+    ],
+  },
+  {
+    category: "🛒 E-commerce",
+    types: [
+      { value: "ecommerce", label: "🌐 E-commerce", desc: "Boutique en ligne, vente sociale" },
+    ],
+  },
+  {
+    category: "🏢 Multi-sites",
+    types: [
+      { value: "multisite", label: "🏢 Multi-sites", desc: "Chaînes, franchises, multi-entrepôts" },
+    ],
+  },
+  {
+    category: "🏪 Autre",
+    types: [
+      { value: "general", label: "🏪 Autre", desc: "Tout autre type de commerce" },
+    ],
+  },
 ];
 
 export default function Onboarding() {
