@@ -201,6 +201,44 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          business_id: string
+          created_at: string
+          id: string
+          is_read: boolean
+          message: string
+          product_id: string | null
+          type: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message: string
+          product_id?: string | null
+          type?: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          product_id?: string | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           barcode: string | null
