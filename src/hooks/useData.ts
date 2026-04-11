@@ -42,7 +42,7 @@ export function useCreateProduct() {
 export function useUpdateProduct() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, ...updates }: { id: string; [key: string]: any }) => {
+    mutationFn: async ({ id, ...updates }: { id: string; name?: string; category_id?: string | null; purchase_price?: number; selling_price?: number; quantity?: number; min_stock?: number; unit?: string; supplier_id?: string | null; barcode?: string | null; description?: string | null }) => {
       const { error } = await supabase.from("products").update(updates).eq("id", id);
       if (error) throw error;
     },
@@ -121,7 +121,7 @@ export function useCreateSupplier() {
 export function useUpdateSupplier() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, ...updates }: { id: string; [key: string]: any }) => {
+    mutationFn: async ({ id, ...updates }: { id: string; name?: string; phone?: string | null; email?: string | null; address?: string | null; notes?: string | null }) => {
       const { error } = await supabase.from("suppliers").update(updates).eq("id", id);
       if (error) throw error;
     },
