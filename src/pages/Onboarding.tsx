@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -6,18 +6,105 @@ import { useBusiness } from "@/contexts/BusinessContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Store, Phone, Mail, MapPin, ArrowRight, Check } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Store, Phone, Mail, MapPin, ArrowRight, Check, Search } from "lucide-react";
 import { toast } from "sonner";
 
-const businessTypes = [
-  { value: "quincaillerie", label: "🔧 Quincaillerie", desc: "Matériaux de construction, outils" },
-  { value: "boutique", label: "🛍️ Boutique", desc: "Vêtements, accessoires, mode" },
-  { value: "alimentation", label: "🥫 Alimentation", desc: "Épicerie, supermarché, alimentaire" },
-  { value: "electronique", label: "📱 Électronique", desc: "Téléphones, informatique, gadgets" },
-  { value: "pharmacie", label: "💊 Pharmacie", desc: "Médicaments, produits de santé" },
-  { value: "cosmétique", label: "💄 Cosmétique", desc: "Beauté, soins, parfumerie" },
-  { value: "restaurant", label: "🍽️ Restaurant", desc: "Restauration, café, traiteur" },
-  { value: "general", label: "🏪 Commerce général", desc: "Autre type de commerce" },
+const businessCategories = [
+  {
+    category: "🛒 Commerce de détail",
+    types: [
+      { value: "boutique", label: "🛍️ Boutique", desc: "Vêtements, accessoires, mode" },
+      { value: "quincaillerie", label: "🔧 Quincaillerie", desc: "Matériaux, outils, bricolage" },
+      { value: "supermarche", label: "🛒 Supermarché", desc: "Supérette, épicerie, alimentaire" },
+      { value: "pharmacie", label: "💊 Pharmacie", desc: "Médicaments, produits de santé" },
+      { value: "librairie", label: "📚 Librairie", desc: "Livres, papeterie, fournitures" },
+      { value: "electronique", label: "📱 Électronique", desc: "Téléphones, informatique, gadgets" },
+      { value: "cosmetique", label: "💄 Cosmétique", desc: "Beauté, parfumerie, soins" },
+      { value: "boulangerie", label: "🥖 Boulangerie", desc: "Pâtisserie, matières premières" },
+    ],
+  },
+  {
+    category: "🏢 Grossiste & Distribution",
+    types: [
+      { value: "grossiste", label: "📦 Grossiste", desc: "Vente en gros, import/export" },
+      { value: "distributeur", label: "🚛 Distributeur", desc: "Centrale d'achat, distribution" },
+    ],
+  },
+  {
+    category: "🏭 Industrie & Production",
+    types: [
+      { value: "usine", label: "🏭 Usine", desc: "Fabrication alimentaire, textile" },
+      { value: "atelier", label: "🔨 Atelier", desc: "Menuiserie, métallurgie, imprimerie" },
+    ],
+  },
+  {
+    category: "🍽️ Restauration & Hôtellerie",
+    types: [
+      { value: "restaurant", label: "🍽️ Restaurant", desc: "Restaurant, fast-food, traiteur" },
+      { value: "hotel", label: "🏨 Hôtel", desc: "Hébergement, consommables" },
+    ],
+  },
+  {
+    category: "🏥 Santé",
+    types: [
+      { value: "clinique", label: "🏥 Clinique", desc: "Hôpital, laboratoire, santé" },
+    ],
+  },
+  {
+    category: "🚗 Auto & Mécanique",
+    types: [
+      { value: "garage", label: "🚗 Garage", desc: "Pièces détachées, mécanique" },
+    ],
+  },
+  {
+    category: "🧱 BTP & Construction",
+    types: [
+      { value: "btp", label: "🧱 BTP", desc: "Construction, dépôt matériaux" },
+    ],
+  },
+  {
+    category: "🌾 Agriculture",
+    types: [
+      { value: "agriculture", label: "🌾 Agriculture", desc: "Semences, engrais, récoltes" },
+    ],
+  },
+  {
+    category: "⛽ Énergie",
+    types: [
+      { value: "energie", label: "⛽ Énergie", desc: "Station-service, dépôt de gaz" },
+    ],
+  },
+  {
+    category: "🧑‍🔧 Services",
+    types: [
+      { value: "services", label: "🧑‍🔧 Services", desc: "Maintenance, plomberie, électricité" },
+    ],
+  },
+  {
+    category: "🏫 Éducation & Institutions",
+    types: [
+      { value: "education", label: "🏫 Éducation", desc: "École, ONG, administration" },
+    ],
+  },
+  {
+    category: "🛒 E-commerce",
+    types: [
+      { value: "ecommerce", label: "🌐 E-commerce", desc: "Boutique en ligne, vente sociale" },
+    ],
+  },
+  {
+    category: "🏢 Multi-sites",
+    types: [
+      { value: "multisite", label: "🏢 Multi-sites", desc: "Chaînes, franchises, multi-entrepôts" },
+    ],
+  },
+  {
+    category: "🏪 Autre",
+    types: [
+      { value: "general", label: "🏪 Autre", desc: "Tout autre type de commerce" },
+    ],
+  },
 ];
 
 export default function Onboarding() {
@@ -26,8 +113,22 @@ export default function Onboarding() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [selectedType, setSelectedType] = useState("");
+  const [searchType, setSearchType] = useState("");
   const [form, setForm] = useState({ phone: "", email: "", address: "", currency: "FCFA", taxRate: "18" });
   const [loading, setLoading] = useState(false);
+
+  const filteredCategories = useMemo(() => {
+    if (!searchType.trim()) return businessCategories;
+    const q = searchType.toLowerCase();
+    return businessCategories
+      .map(cat => ({
+        ...cat,
+        types: cat.types.filter(t => 
+          t.label.toLowerCase().includes(q) || t.desc.toLowerCase().includes(q) || t.value.includes(q)
+        ),
+      }))
+      .filter(cat => cat.types.length > 0);
+  }, [searchType]);
 
   const handleComplete = async () => {
     if (!user) return;
@@ -72,25 +173,46 @@ export default function Onboarding() {
           <div className="space-y-6 animate-fade-in">
             <div className="text-center">
               <h1 className="text-2xl font-bold">Quel est votre domaine d'activité ?</h1>
-              <p className="text-muted-foreground mt-2">L'interface s'adaptera automatiquement à votre secteur</p>
+              <p className="text-muted-foreground mt-2">Choisissez votre secteur — l'interface s'adaptera automatiquement</p>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {businessTypes.map(t => (
-                <button
-                  key={t.value}
-                  onClick={() => setSelectedType(t.value)}
-                  className={`p-4 rounded-xl border-2 transition-all text-left hover:shadow-md ${
-                    selectedType === t.value
-                      ? "border-primary bg-primary/5 shadow-md"
-                      : "border-border hover:border-primary/40"
-                  }`}
-                >
-                  <span className="text-2xl block mb-2">{t.label.split(" ")[0]}</span>
-                  <p className="text-sm font-medium">{t.label.split(" ").slice(1).join(" ")}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{t.desc}</p>
-                </button>
-              ))}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Rechercher un secteur..."
+                value={searchType}
+                onChange={e => setSearchType(e.target.value)}
+                className="pl-9"
+              />
             </div>
+            <ScrollArea className="h-[400px] pr-2">
+              <div className="space-y-4">
+                {filteredCategories.map(cat => (
+                  <div key={cat.category}>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">{cat.category}</p>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                      {cat.types.map(t => (
+                        <button
+                          key={t.value}
+                          onClick={() => setSelectedType(t.value)}
+                          className={`p-3 rounded-xl border-2 transition-all text-left hover:shadow-md ${
+                            selectedType === t.value
+                              ? "border-primary bg-primary/5 shadow-md"
+                              : "border-border hover:border-primary/40"
+                          }`}
+                        >
+                          <span className="text-xl block mb-1">{t.label.split(" ")[0]}</span>
+                          <p className="text-sm font-medium">{t.label.split(" ").slice(1).join(" ")}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">{t.desc}</p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+                {filteredCategories.length === 0 && (
+                  <p className="text-center text-muted-foreground py-8">Aucun secteur trouvé</p>
+                )}
+              </div>
+            </ScrollArea>
             <div className="flex justify-end">
               <Button onClick={() => setStep(2)} disabled={!selectedType} className="gap-2" size="lg">
                 Continuer <ArrowRight className="w-4 h-4" />
