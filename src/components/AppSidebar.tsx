@@ -6,7 +6,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBusiness } from "@/contexts/BusinessContext";
-import { useProducts } from "@/hooks/useData";
+import { useUnreadNotificationCount } from "@/hooks/useData";
 
 const menuItems = [
   { label: "Tableau de bord", icon: LayoutDashboard, path: "/" },
@@ -23,8 +23,7 @@ export function AppSidebar({ collapsed, onToggle }: { collapsed: boolean; onTogg
   const location = useLocation();
   const { signOut } = useAuth();
   const { business } = useBusiness();
-  const { data: products = [] } = useProducts();
-  const alertCount = products.filter(p => p.quantity <= p.min_stock).length;
+  const { data: alertCount = 0 } = useUnreadNotificationCount();
 
   return (
     <aside className={cn(

@@ -42,7 +42,7 @@ export function useCreateProduct() {
 export function useUpdateProduct() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, ...updates }: { id: string; [key: string]: any }) => {
+    mutationFn: async ({ id, ...updates }: { id: string; name?: string; category_id?: string | null; purchase_price?: number; selling_price?: number; quantity?: number; min_stock?: number; unit?: string; supplier_id?: string | null; barcode?: string | null; description?: string | null }) => {
       const { error } = await supabase.from("products").update(updates).eq("id", id);
       if (error) throw error;
     },
@@ -121,7 +121,7 @@ export function useCreateSupplier() {
 export function useUpdateSupplier() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, ...updates }: { id: string; [key: string]: any }) => {
+    mutationFn: async ({ id, ...updates }: { id: string; name?: string; phone?: string | null; email?: string | null; address?: string | null; notes?: string | null }) => {
       const { error } = await supabase.from("suppliers").update(updates).eq("id", id);
       if (error) throw error;
     },
@@ -277,6 +277,43 @@ export function useDashboardStats() {
       const lowStockProducts = (lowStock || []).filter(p => p.quantity <= p.min_stock);
 
       return { totalStock, totalRevenue, monthlyRevenue, lowStockCount: lowStockProducts.length, invoiceCount: invoices.length, products, invoices };
+    },
+    enabled: !!business,
+  });
+}
+
+export function useNotifications() {
+  const { business } = useBusiness();
+  return useQuery({
+    queryKey: ["notifications", business?.id],
+    queryFn: async () => {
+      if (!business) return [];
+      const { data, error } = await supabase
+        .from("notifications")
+        .select("*")
+        .eq("business_id", business.id)
+        .order("created_at", { ascending: false })
+        .limit(50);
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!business,
+  });
+}
+
+export function useUnreadNotificationCount() {
+  const { business } = useBusiness();
+  return useQuery({
+    queryKey: ["notifications_unread", business?.id],
+    queryFn: async () => {
+      if (!business) return 0;
+      const { count, error } = await supabase
+        .from("notifications")
+        .select("*", { count: "exact", head: true })
+        .eq("business_id", business.id)
+        .eq("is_read", false);
+      if (error) throw error;
+      return count || 0;
     },
     enabled: !!business,
   });
