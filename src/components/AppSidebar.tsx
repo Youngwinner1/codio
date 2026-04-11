@@ -37,7 +37,7 @@ export function AppSidebar({ collapsed, onToggle }: { collapsed: boolean; onTogg
         {!collapsed && (
           <div className="overflow-hidden">
             <h1 className="text-sm font-bold text-sidebar-accent-foreground leading-tight truncate">
-              {business?.name || "BayeSam"}
+              {business?.name || "Codio"}
             </h1>
             <p className="text-[11px] text-sidebar-foreground/60">Gestion Pro</p>
           </div>
