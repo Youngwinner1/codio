@@ -2,9 +2,11 @@ import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import { AppSidebar } from "./AppSidebar";
 import { cn } from "@/lib/utils";
+import { useStockAlerts } from "@/hooks/useStockAlerts";
 
 export function AppLayout() {
   const [collapsed, setCollapsed] = useState(false);
+  useStockAlerts(); // Real-time stock monitoring for all connected users
 
   return (
     <div className="min-h-screen flex bg-background">
