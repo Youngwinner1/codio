@@ -167,10 +167,15 @@ export default function Sales() {
                 <td className="py-3 px-4 text-muted-foreground">{new Date(inv.date).toLocaleDateString("fr-FR")}</td>
                 <td className="py-3 px-4">{inv.client_name}</td>
                 <td className="py-3 px-4 text-right font-semibold">{formatCurrency(Number(inv.total))}</td>
-                <td className="py-3 px-4 text-center">
+                <td className="py-3 px-4 text-center flex flex-col items-center gap-1">
                   <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusColors[inv.status]}`}>
                     {statusLabels[inv.status]}
                   </span>
+                  {printedIds.has(inv.id) && (
+                    <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium border bg-emerald-500/15 text-emerald-600 border-emerald-500/20">
+                      Imprimée
+                    </span>
+                  )}
                 </td>
                 <td className="py-3 px-4 text-right">
                   <div className="flex items-center justify-end gap-1">
