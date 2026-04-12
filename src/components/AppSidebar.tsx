@@ -31,7 +31,7 @@ export function AppSidebar({ collapsed, onToggle }: { collapsed: boolean; onTogg
       collapsed ? "w-[70px]" : "w-[260px]"
     )}>
       <div className="flex items-center gap-3 px-4 py-5 border-b border-sidebar-border">
-        <img src="/logo-codio.png" alt="Codio" className="w-9 h-9 rounded-lg flex-shrink-0" />
+        <img src={business?.logo_url || "/logo-codio.png"} alt="Codio" className="w-9 h-9 rounded-lg flex-shrink-0 object-cover" />
         {!collapsed && (
           <div className="overflow-hidden">
             <h1 className="text-sm font-bold text-sidebar-accent-foreground leading-tight truncate">
