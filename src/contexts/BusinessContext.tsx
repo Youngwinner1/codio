@@ -4,6 +4,7 @@ import { useAuth } from "./AuthContext";
 
 interface BusinessProfile {
   id: string;
+  owner_id: string;
   name: string;
   business_type: string;
   phone: string | null;
