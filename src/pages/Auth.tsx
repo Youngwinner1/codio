@@ -4,8 +4,47 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Store, Mail, Lock, User, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { Store, Mail, Lock, User, ArrowRight, Eye, EyeOff, Quote } from "lucide-react";
 import { toast } from "sonner";
+
+const testimonials = [
+  { name: "Aminata D.", role: "Gérante de superette", text: "Depuis que j'utilise Codio, je ne perds plus de produits. Les alertes de stock bas m'ont sauvée plusieurs fois !" },
+  { name: "Moussa K.", role: "Propriétaire de quincaillerie", text: "Simple, efficace et adapté à mon métier. Je gère mes 3 magasins depuis mon téléphone." },
+  { name: "Dr. Fatou S.", role: "Pharmacienne", text: "Le suivi des dates de péremption et la traçabilité sont essentiels. Codio répond parfaitement à ces besoins." },
+  { name: "Ibrahim B.", role: "Grossiste import/export", text: "La gestion multi-entrepôts et le suivi fournisseurs ont transformé mon activité. Je recommande à 100%." },
+  { name: "Aïcha T.", role: "Restauratrice", text: "Je sais exactement combien me coûte chaque plat grâce au suivi des ingrédients. Un vrai gain de temps !" },
+];
+
+function TestimonialCarousel() {
+  const [current, setCurrent] = useState(0);
+  useEffect(() => {
+    const timer = setInterval(() => setCurrent(i => (i + 1) % testimonials.length), 5000);
+    return () => clearInterval(timer);
+  }, []);
+  const t = testimonials[current];
+  return (
+    <div className="space-y-4">
+      <div className="bg-primary-foreground/10 rounded-xl p-6 min-h-[140px] transition-all duration-500">
+        <Quote className="w-5 h-5 opacity-50 mb-2" />
+        <p className="text-sm italic leading-relaxed opacity-95">{t.text}</p>
+        <div className="mt-4 flex items-center gap-3">
+          <div className="w-9 h-9 rounded-full bg-primary-foreground/20 flex items-center justify-center text-sm font-bold">
+            {t.name.charAt(0)}
+          </div>
+          <div>
+            <p className="text-sm font-semibold">{t.name}</p>
+            <p className="text-xs opacity-70">{t.role}</p>
+          </div>
+        </div>
+      </div>
+      <div className="flex gap-1.5 justify-center">
+        {testimonials.map((_, i) => (
+          <button key={i} onClick={() => setCurrent(i)} className={`w-2 h-2 rounded-full transition-all ${i === current ? "bg-primary-foreground w-6" : "bg-primary-foreground/30"}`} />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function Auth() {
   const [mode, setMode] = useState<"login" | "signup" | "forgot">("login");
