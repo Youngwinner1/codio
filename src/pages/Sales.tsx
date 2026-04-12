@@ -32,7 +32,7 @@ export default function Sales() {
   const { data: invoices = [], isLoading } = useInvoices();
   const { data: products = [] } = useProducts();
   const createInvoice = useCreateInvoice();
-
+  const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [createOpen, setCreateOpen] = useState(false);
   const [viewInvoice, setViewInvoice] = useState<any>(null);
