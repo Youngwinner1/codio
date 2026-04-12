@@ -82,6 +82,9 @@ export default function Auth() {
             ))}
           </div>
         </div>
+
+        {/* Testimonials */}
+        <TestimonialCarousel />
         <p className="text-sm opacity-60">© 2025 Codio</p>
       </div>
 
