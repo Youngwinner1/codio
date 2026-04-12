@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Plus, Search, Eye, Printer, FileText, Trash2, Loader2 } from "lucide-react";
 import { useInvoices, useCreateInvoice, useProducts } from "@/hooks/useData";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 import { useBusiness } from "@/contexts/BusinessContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
