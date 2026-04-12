@@ -38,6 +38,7 @@ export default function Sales() {
   const [clientPhone, setClientPhone] = useState("");
   const [items, setItems] = useState<ItemForm[]>([]);
   const [discount, setDiscount] = useState(0);
+  const [printedIds, setPrintedIds] = useState<Set<string>>(new Set());
 
   const filtered = invoices.filter(inv =>
     inv.invoice_number.toLowerCase().includes(search.toLowerCase()) ||
