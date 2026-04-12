@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Plus, Search, Eye, Printer, FileText, Trash2, Loader2 } from "lucide-react";
 import { useInvoices, useCreateInvoice, useProducts } from "@/hooks/useData";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 import { useBusiness } from "@/contexts/BusinessContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,7 +32,7 @@ export default function Sales() {
   const { data: invoices = [], isLoading } = useInvoices();
   const { data: products = [] } = useProducts();
   const createInvoice = useCreateInvoice();
-
+  const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [createOpen, setCreateOpen] = useState(false);
   const [viewInvoice, setViewInvoice] = useState<any>(null);
@@ -38,7 +40,6 @@ export default function Sales() {
   const [clientPhone, setClientPhone] = useState("");
   const [items, setItems] = useState<ItemForm[]>([]);
   const [discount, setDiscount] = useState(0);
-  const [printedIds, setPrintedIds] = useState<Set<string>>(new Set());
 
   const filtered = invoices.filter(inv =>
     inv.invoice_number.toLowerCase().includes(search.toLowerCase()) ||
@@ -86,9 +87,7 @@ export default function Sales() {
     setDiscount(0);
   };
 
-  const markPrinted = (id: string) => setPrintedIds(prev => new Set(prev).add(id));
-
-  const handlePrint = (inv: any) => {
+  const handlePrint = async (inv: any) => {
     const invItems = inv.invoice_items || [];
     const printWindow = window.open("", "_blank");
     if (!printWindow) return;
@@ -126,7 +125,9 @@ export default function Sales() {
     `);
     printWindow.document.close();
     printWindow.print();
-    markPrinted(inv.id);
+    // Mark as printed in DB
+    await supabase.from("invoices").update({ printed: true } as any).eq("id", inv.id);
+    queryClient.invalidateQueries({ queryKey: ["invoices"] });
   };
 
   if (isLoading) return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
@@ -167,13 +168,14 @@ export default function Sales() {
                 <td className="py-3 px-4 text-muted-foreground">{new Date(inv.date).toLocaleDateString("fr-FR")}</td>
                 <td className="py-3 px-4">{inv.client_name}</td>
                 <td className="py-3 px-4 text-right font-semibold">{formatCurrency(Number(inv.total))}</td>
-                <td className="py-3 px-4 text-center flex flex-col items-center gap-1">
-                  <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusColors[inv.status]}`}>
-                    {statusLabels[inv.status]}
-                  </span>
-                  {printedIds.has(inv.id) && (
+                <td className="py-3 px-4 text-center">
+                  {(inv as any).printed ? (
                     <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium border bg-emerald-500/15 text-emerald-600 border-emerald-500/20">
                       Imprimée
+                    </span>
+                  ) : (
+                    <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusColors[inv.status]}`}>
+                      {statusLabels[inv.status]}
                     </span>
                   )}
                 </td>

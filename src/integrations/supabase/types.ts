@@ -151,6 +151,7 @@ export type Database = {
           id: string
           invoice_number: string
           notes: string | null
+          printed: boolean
           status: Database["public"]["Enums"]["invoice_status"]
           subtotal: number
           tax: number
@@ -168,6 +169,7 @@ export type Database = {
           id?: string
           invoice_number: string
           notes?: string | null
+          printed?: boolean
           status?: Database["public"]["Enums"]["invoice_status"]
           subtotal?: number
           tax?: number
@@ -185,6 +187,7 @@ export type Database = {
           id?: string
           invoice_number?: string
           notes?: string | null
+          printed?: boolean
           status?: Database["public"]["Enums"]["invoice_status"]
           subtotal?: number
           tax?: number
