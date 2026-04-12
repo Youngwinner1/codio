@@ -1,4 +1,4 @@
-import { Store, Save, Loader2 } from "lucide-react";
+import { Store, Save, Loader2, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -6,12 +6,14 @@ import { useBusiness } from "@/contexts/BusinessContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export default function SettingsPage() {
   const { business, refetch } = useBusiness();
   const { signOut } = useAuth();
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [settings, setSettings] = useState({
     name: "", phone: "", email: "", address: "", tax_rate: "18", currency: "FCFA",
   });
@@ -28,6 +30,55 @@ export default function SettingsPage() {
       });
     }
   }, [business]);
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !business) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Veuillez sélectionner une image");
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("L'image ne doit pas dépasser 2 Mo");
+      return;
+    }
+
+    setUploading(true);
+    const ext = file.name.split(".").pop();
+    const path = `${business.id}/logo.${ext}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("business-logos")
+      .upload(path, file, { upsert: true });
+
+    if (uploadError) {
+      setUploading(false);
+      toast.error("Erreur lors de l'upload");
+      return;
+    }
+
+    const { data: urlData } = supabase.storage.from("business-logos").getPublicUrl(path);
+
+    const { error: updateError } = await supabase
+      .from("business_profiles")
+      .update({ logo_url: urlData.publicUrl })
+      .eq("id", business.id);
+
+    setUploading(false);
+    if (updateError) { toast.error("Erreur lors de la mise à jour"); return; }
+    await refetch();
+    toast.success("Logo mis à jour");
+  };
+
+  const handleRemoveLogo = async () => {
+    if (!business) return;
+    setSaving(true);
+    await supabase.from("business_profiles").update({ logo_url: null }).eq("id", business.id);
+    await refetch();
+    setSaving(false);
+    toast.success("Logo supprimé");
+  };
 
   const handleSave = async () => {
     if (!business) return;
@@ -58,10 +109,43 @@ export default function SettingsPage() {
         <p className="text-muted-foreground text-sm mt-1">Configuration de votre entreprise</p>
       </div>
 
+      {/* Logo Section */}
+      <div className="stat-card space-y-4">
+        <h2 className="font-semibold">Logo de l'entreprise</h2>
+        <p className="text-sm text-muted-foreground">Ce logo apparaîtra dans la sidebar et sur vos factures</p>
+        <div className="flex items-center gap-4">
+          <div className="w-20 h-20 rounded-xl border-2 border-dashed border-border flex items-center justify-center overflow-hidden bg-muted/30">
+            {business.logo_url ? (
+              <img src={business.logo_url} alt="Logo" className="w-full h-full object-cover rounded-xl" />
+            ) : (
+              <Store className="w-8 h-8 text-muted-foreground/40" />
+            )}
+          </div>
+          <div className="space-y-2">
+            <input ref={fileInputRef} type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
+            <Button variant="outline" size="sm" className="gap-2" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
+              {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+              {business.logo_url ? "Changer" : "Uploader"}
+            </Button>
+            {business.logo_url && (
+              <Button variant="ghost" size="sm" className="gap-2 text-destructive" onClick={handleRemoveLogo}>
+                <X className="w-4 h-4" /> Supprimer
+              </Button>
+            )}
+            <p className="text-xs text-muted-foreground">PNG, JPG. Max 2 Mo.</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Business Info */}
       <div className="stat-card space-y-5">
         <div className="flex items-center gap-3 pb-4 border-b border-border/50">
           <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-            <Store className="w-6 h-6 text-primary" />
+            {business.logo_url ? (
+              <img src={business.logo_url} alt="" className="w-10 h-10 rounded-lg object-cover" />
+            ) : (
+              <Store className="w-6 h-6 text-primary" />
+            )}
           </div>
           <div>
             <h2 className="font-semibold">Informations de l'entreprise</h2>
