@@ -38,6 +38,7 @@ export default function Sales() {
   const [clientPhone, setClientPhone] = useState("");
   const [items, setItems] = useState<ItemForm[]>([]);
   const [discount, setDiscount] = useState(0);
+  const [printedIds, setPrintedIds] = useState<Set<string>>(new Set());
 
   const filtered = invoices.filter(inv =>
     inv.invoice_number.toLowerCase().includes(search.toLowerCase()) ||
@@ -85,6 +86,8 @@ export default function Sales() {
     setDiscount(0);
   };
 
+  const markPrinted = (id: string) => setPrintedIds(prev => new Set(prev).add(id));
+
   const handlePrint = (inv: any) => {
     const invItems = inv.invoice_items || [];
     const printWindow = window.open("", "_blank");
@@ -123,6 +126,7 @@ export default function Sales() {
     `);
     printWindow.document.close();
     printWindow.print();
+    markPrinted(inv.id);
   };
 
   if (isLoading) return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
@@ -163,10 +167,15 @@ export default function Sales() {
                 <td className="py-3 px-4 text-muted-foreground">{new Date(inv.date).toLocaleDateString("fr-FR")}</td>
                 <td className="py-3 px-4">{inv.client_name}</td>
                 <td className="py-3 px-4 text-right font-semibold">{formatCurrency(Number(inv.total))}</td>
-                <td className="py-3 px-4 text-center">
+                <td className="py-3 px-4 text-center flex flex-col items-center gap-1">
                   <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusColors[inv.status]}`}>
                     {statusLabels[inv.status]}
                   </span>
+                  {printedIds.has(inv.id) && (
+                    <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium border bg-emerald-500/15 text-emerald-600 border-emerald-500/20">
+                      Imprimée
+                    </span>
+                  )}
                 </td>
                 <td className="py-3 px-4 text-right">
                   <div className="flex items-center justify-end gap-1">
