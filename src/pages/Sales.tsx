@@ -125,7 +125,9 @@ export default function Sales() {
     `);
     printWindow.document.close();
     printWindow.print();
-    markPrinted(inv.id);
+    // Mark as printed in DB
+    await supabase.from("invoices").update({ printed: true } as any).eq("id", inv.id);
+    queryClient.invalidateQueries({ queryKey: ["invoices"] });
   };
 
   if (isLoading) return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
