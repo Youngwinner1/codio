@@ -86,6 +86,8 @@ export default function Sales() {
     setDiscount(0);
   };
 
+  const markPrinted = (id: string) => setPrintedIds(prev => new Set(prev).add(id));
+
   const handlePrint = (inv: any) => {
     const invItems = inv.invoice_items || [];
     const printWindow = window.open("", "_blank");
